@@ -10,6 +10,21 @@ const Constants = require('./Constants')
 const Utterance = require('./Utterance')
 const { Convo } = require('./Convo')
 
+function  filterNames (all_sheetnames, workbook_sheetnames) {
+    let sheetnames = []
+    if(!workbook_sheetnames) {
+      return all_sheetnames;
+    }
+    for (const sheetname of all_sheetnames) {
+        for(const sheet of workbook_sheetnames) {
+            if(sheet.startsWith(sheetname)) {
+		sheetnames.push(sheet);
+            }
+	}
+    }
+    return sheetnames;
+}
+
 module.exports = class CompilerXlsx extends CompilerBase {
   constructor (context, caps = {}) {
     super(context, caps)
@@ -43,13 +58,13 @@ module.exports = class CompilerXlsx extends CompilerBase {
     let sheetnames = []
     if (scriptType === Constants.SCRIPTING_TYPE_CONVO) {
       if (this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES]) {
-        sheetnames = this._splitSheetnames(this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES])
+        sheetnames = filterNames(this._splitSheetnames(this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES]), workbook.SheetNames);
       } else {
         sheetnames = workbook.SheetNames || []
       }
     } else if (scriptType === Constants.SCRIPTING_TYPE_UTTERANCES) {
-      if (this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES_UTTERANCES]) {
-        sheetnames = this._splitSheetnames(this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES_UTTERANCES])
+      if (this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES_PCONVOS]) {
+        sheetnames =  filterNames(this._splitSheetnames(this.caps[Capabilities.SCRIPTING_XLSX_SHEETNAMES_PCONVOS]), workbook.SheetNames);
       } else {
         sheetnames = workbook.SheetNames || []
       }
